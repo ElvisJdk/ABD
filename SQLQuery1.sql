@@ -135,9 +135,10 @@ where	ListPrice > 100 and Name like '%bike%'
 
 --16. mostrar las bicicletas de montaña que  cuestan entre $1000 y $1200 
 
-select	ListPrice precio
+select	Name,ListPrice precio
 from	Production.Product
 where	ListPrice between 1000 and 1200 and Name like '%mountain%'
+
 
 --17. mostrar los nombre de los productos que tengan cualquier combinacion de ‘mountain bike’ 
 select	Name
@@ -191,3 +192,107 @@ order by	LastName, FirstName
 select TOP 5 Name, ListPrice
 from  Production.Product
 order by Name
+
+/*
+funciones de agrupacion
+
+25. mostrar la fecha mas reciente de venta 
+26. mostrar el precio mas barato de todas las bicicletas 
+27. mostrar la fecha de nacimiento del empleado mas joven 
+
+*/
+
+--25. mostrar la fecha mas reciente de venta 
+
+select	MAX(OrderDate) 'venta reciente'
+from	Sales.SalesOrderHeader
+
+--26. mostrar el precio mas barato de todas las bicicletas 
+
+select	MIN(ListPrice) 'precio minimo'
+from	Production.Product
+where	ListPrice is not null and Name like '%Bike%'
+
+--27. mostrar la fecha de nacimiento del empleado mas joven 
+ 
+select  max(BirthDate) 'mas joven'
+from	HumanResources.Employee
+
+/*
+
+null
+
+28. mostrar los representantes de ventas (vendedores) que no tienen definido el numero de territorio
+29. mostrar el peso promedio de todos los articulos. si el peso no estuviese definido, reemplazar por cero
+
+*/
+
+--28. mostrar los representantes de ventas (vendedores) que no tienen definido el numero de territorio
+
+select	*
+from	sales.SalesPerson
+where	TerritoryID is null
+
+--29. mostrar el peso promedio de todos los articulos. si el peso no estuviese definido, reemplazar por cero
+
+select	AVG(isnull (Weight,0)) promedio
+from	Production.Product
+
+/*
+group by
+
+30. mostrar el codigo de subcategoria y el precio del producto mas barato de cada una 
+de ellas 
+31. mostrar los productos y la cantidad total vendida de cada uno de ellos
+32. mostrar los productos y la cantidad total vendida de cada uno de ellos, ordenarlos por mayor cantidad de ventas
+33. mostrar todas las facturas realizadas y el total facturado de cada una de ellas ordenado por numero de factura.
+*/
+ 
+ --30. mostrar el codigo de subcategoria y el precio del producto mas barato de cada una de ellas
+
+ select		ProductSubcategoryID 'codigo de subcategoria', MIN(ListPrice) 'producto mas barato'
+ from		Production.Product
+ group by	ProductSubcategoryID
+
+ --31. mostrar los productos y la cantidad total vendida de cada uno de ellos
+
+select		ProductID as Producto,
+			SUM(OrderQty) as 'Total de Ventas'
+from		Sales.SalesOrderDetail
+group by	ProductID
+
+
+--32. mostrar los productos y la cantidad total vendida de cada uno de ellos, ordenarlos por mayor cantidad 
+--de ventas
+
+select		ProductID as Producto,
+			SUM(OrderQty) as 'Total de Ventas'
+from		Sales.SalesOrderDetail
+group by	ProductID
+order by	1
+
+--33. mostrar todas las facturas realizadas y el total facturado de cada una de ellas ordenado
+--por numero de factura.
+select SalesOrderID factura, sum(LineTotal) 'subtotal'
+from  Sales.SalesOrderDetail
+group by SalesOrderID
+order by SalesOrderID
+
+
+
+/*
+having
+
+34. mostrar todas las facturas realizadas y el total facturado de cada una de ellas ordenado por nro de factura  pero solo de aquellas ordenes superen un total de $10.000 
+35. mostrar la cantidad de facturas que vendieron mas de 20 unidades 
+36. mostrar las subcategorias de los productos que tienen dos o mas productos que cuestan menos de $150 
+37. mostrar todos los codigos de categorias existentes junto con la cantidad de productos y el precio de lista promedio por cada uno de aquellos productos que cuestan mas de $70 y el precio promedio es mayor a $300 
+*/
+
+--34. mostrar todas las facturas realizadas y el total facturado de cada una de ellas ordenado por nro de factura  
+--pero solo de aquellas ordenes superen un total de $10.000 
+select SalesOrderID factura, sum(LineTotal) 'subtotal'
+from  Sales.SalesOrderDetail
+group by SalesOrderID
+having sum(LineTotal) > 10000
+order by SalesOrderID
